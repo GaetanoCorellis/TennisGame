@@ -1,0 +1,7 @@
+﻿{
+  "WinPointsMin": 4,
+  "WinPointsGap": 2,
+  "DeucePointsMin": 3,
+  "AdvantagePointsMin": 3,
+  "AdvantagePointsGap": 1
+}

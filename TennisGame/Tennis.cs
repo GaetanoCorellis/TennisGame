@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using TennisGame.Enum;
 using TennisGame.Class;
 
@@ -9,6 +6,7 @@ namespace TennisGame {
     public class Tennis {
         private Player FirstPlayer;
         private Player SecondPlayer;
+        private GameSettings GameSettings;
 
         /// <summary>
         /// Tennis constructor with params.
@@ -18,6 +16,7 @@ namespace TennisGame {
         public Tennis(Player player1, Player player2) {
             FirstPlayer = player1;
             SecondPlayer = player2;
+            GameSettings = Utils.GetClassFromEmbeddedJson<GameSettings>(nameof(GameSettings));
         }
 
         /// <summary>
@@ -49,16 +48,29 @@ namespace TennisGame {
         /// </summary>
         /// <returns>Message that report's the game score.</returns>
         public string ReportGameScore() {
-            if (FirstPlayer.Points >= GameSettings.DeucePointsMin && SecondPlayer.Points == FirstPlayer.Points) {
-                return "Deuce";
+            if (IsDeuce()) {
+                return nameof(SpecialScoreType.Deuce);
             }
-            if (FirstPlayer.Points >= GameSettings.AdvantagePointsMin && FirstPlayer.Points == SecondPlayer.Points + GameSettings.AdvantagePointsGap) {
-                return $"Advantage {FirstPlayer.Name}";
-            }
-            if (SecondPlayer.Points >= GameSettings.AdvantagePointsMin && SecondPlayer.Points == FirstPlayer.Points + GameSettings.AdvantagePointsGap) {
-                return $"Advantage {SecondPlayer.Name}";
+            if (IsAdvantage()) {
+                return $"{nameof(SpecialScoreType.Advantage)} {(FirstPlayer.Points > SecondPlayer.Points ? FirstPlayer.Name : SecondPlayer.Name)}";
             }
             return $"{FirstPlayer.Name} : {Utils.GetPointDescription(FirstPlayer.Points)} - {SecondPlayer.Name} : {Utils.GetPointDescription(SecondPlayer.Points)}";
+        }
+
+        /// <summary>
+        /// Check if the game is deuce.
+        /// </summary>
+        /// <returns>True if the game is Deuce, false if the game isn't.</returns>
+        private bool IsDeuce() {
+            return FirstPlayer.Points >= GameSettings.DeucePointsMin && SecondPlayer.Points == FirstPlayer.Points;
+        }
+
+        /// <summary>
+        /// Check if a player is in Advantage.
+        /// </summary>
+        /// <returns>True if a player is in Advantage, false if there isn't advantage.</returns>
+        private bool IsAdvantage() {
+            return FirstPlayer.Points >= GameSettings.AdvantagePointsMin && FirstPlayer.Points == SecondPlayer.Points + GameSettings.AdvantagePointsGap || SecondPlayer.Points >= GameSettings.AdvantagePointsMin && SecondPlayer.Points == FirstPlayer.Points + GameSettings.AdvantagePointsGap;
         }
     }
 }

@@ -100,9 +100,11 @@ namespace TennisGameUnitTests
         /// Checking GetPointDescription convertion is correct from number to ScoreType.
         /// </summary>
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void GetPointDescriptionTest() {
-            Assert.AreEqual(nameof(ScoreType.Fifteen), Utils.GetPointDescription(1));
+            Assert.AreEqual(nameof(ScoreType.Love), Utils.GetPointDescription(0));
             Assert.AreNotEqual(nameof(ScoreType.Love), Utils.GetPointDescription(1));
+            Assert.Fail(Utils.GetPointDescription(10));
         }
 
         /// <summary>
@@ -110,8 +112,29 @@ namespace TennisGameUnitTests
         /// </summary>
         [TestMethod]
         public void GetReportGameScoreFromNumberToScoreType() {
-            //TODO - Add test logic.
-            throw new NotImplementedException();
+            Player firstPlayer = new Player("Player1");
+            Player secondPlayer = new Player("Player2");
+            Tennis tennis = new Tennis(firstPlayer, secondPlayer);
+
+            //Test deuce value
+            firstPlayer.Points = 3;
+            secondPlayer.Points = 3;
+            Assert.AreEqual(nameof(SpecialScoreType.Deuce), tennis.ReportGameScore());
+
+            //Test first player advantage message.
+            firstPlayer.Points = 4;
+            secondPlayer.Points = 3;
+            Assert.AreEqual($"{nameof(SpecialScoreType.Advantage)} {firstPlayer.Name}", tennis.ReportGameScore());
+            
+            //Test second player advantage message.
+            firstPlayer.Points = 3;
+            secondPlayer.Points = 4;
+            Assert.AreEqual($"{nameof(SpecialScoreType.Advantage)} {secondPlayer.Name}", tennis.ReportGameScore());
+
+            //Test first player and second player points message.
+            firstPlayer.Points = 3;
+            secondPlayer.Points = 1;
+            Assert.AreEqual($"{firstPlayer.Name} : {Utils.GetPointDescription(firstPlayer.Points)} - {secondPlayer.Name} : {Utils.GetPointDescription(secondPlayer.Points)}", tennis.ReportGameScore());
         }
     }
 }
